@@ -7,12 +7,13 @@ def main():
     exchange = Exchange()
 
     # Simulate some orders
+    exchange.create_order(OrderType.BUY, 78, 30)
     exchange.place_order(Order("1", OrderType.BUY, 100.0, 10, time.time()))
     exchange.place_order(Order("2", OrderType.BUY, 110.0, 20, time.time()))
     exchange.place_order(Order("3", OrderType.BUY, 90.0, 5, time.time()))
 
     exchange.place_order(Order("2", OrderType.SELL, 101.0, 5, time.time()))
-    exchange.place_order(make_order(OrderType.BUY, 99.95, 15, time.time()))
+    exchange.place_order(make_order(OrderType.BUY, 99.95, 15))
     exchange.show_books()
 
     # # Run the exchange simulation

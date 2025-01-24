@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from uuid import uuid4 as uid
+from utils import current_millis
 
 
 class OrderType(Enum):
@@ -14,16 +15,14 @@ class Order:
     order_type: OrderType
     price: float
     quantity: int
-    timestamp: float
+    timestamp: int
 
 
-def make_order(
-    order_type: OrderType, price: float, quantity: int, timestamp: float
-) -> Order:
+def make_order(order_type: OrderType, price: float, quantity: int) -> Order:
     return Order(
         order_id=uid(),
         order_type=order_type,
         price=price,
         quantity=quantity,
-        timestamp=timestamp,
+        timestamp=current_millis(),
     )
