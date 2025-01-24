@@ -19,6 +19,9 @@ class Exchange:
         self.order_book.add_order(order)
         self.order_book.match_orders()
 
+    def execute_orders(self):
+        self.order_book.match_orders()
+
     def get_current_price(self):
         # Implement logic to determine current price
         pass
