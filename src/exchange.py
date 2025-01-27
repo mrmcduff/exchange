@@ -3,8 +3,8 @@ from order import Order, OrderType, make_order
 
 
 class Exchange:
-    def __init__(self):
-        self.order_book = OrderBook()
+    def __init__(self, book_cache_size=10):
+        self.order_book = OrderBook(cache_size=book_cache_size)
 
     def show_books(self):
         print("Buy book")

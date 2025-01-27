@@ -4,7 +4,7 @@ import time
 
 
 def main():
-    exchange = Exchange()
+    exchange = Exchange(book_cache_size=3)
 
     # Simulate some orders
     exchange.create_order(OrderType.BUY, 78, 30)
@@ -13,6 +13,10 @@ def main():
     exchange.create_order(OrderType.BUY, 90.0, 5)
 
     exchange.create_order(OrderType.SELL, 101.0, 5)
+    exchange.create_order(OrderType.SELL, 125.0, 6)
+    exchange.create_order(OrderType.SELL, 109.0, 5)
+    exchange.create_order(OrderType.SELL, 121.0, 3)
+
     exchange.create_order(OrderType.BUY, 99.95, 15)
     exchange.show_books()
 

@@ -1,43 +1,76 @@
 import pandas as pd
 from order import Order, OrderType
 
+type OrderList = list[Order]
+
 
 class OrderBook:
-    def __init__(self):
+    def __init__(self, cache_size):
+        self.cache_size = cache_size
         self.buy_orders = pd.DataFrame(columns=["id", "price", "quantity", "timestamp"])
         self.buy_orders.set_index("id")
         self.sell_orders = pd.DataFrame(
             columns=["id", "price", "quantity", "timestamp"]
         )
         self.sell_orders.set_index("id")
+        self.quick_buy = []
+        self.quick_sell = []
 
-    def show_book(self, order_type: OrderType):
+    def show_book(self, order_type: OrderType) -> None:
         if order_type == OrderType.BUY:
             print(self.buy_orders)
         else:
             print(self.sell_orders)
 
+    def check_clear_cache(self) -> None:
+        if len(self.quick_buy) > self.cache_size:
+            self.clear_cache(OrderType.BUY)
+        if len(self.quick_sell) > self.cache_size:
+            self.clear_cache(OrderType.SELL)
+        return
+
+    def clear_cache(self, order_type: OrderType):
+        if order_type == OrderType.BUY:
+            self.buy_orders = self.concat_and_sort(
+                self.quick_buy, self.buy_orders, order_type
+            )
+            self.quick_buy = []
+        else:
+            self.sell_orders = self.concat_and_sort(
+                self.quick_sell, self.sell_orders, order_type
+            )
+            self.quick_sell = []
+        return
+
+    def concat_and_sort(
+        self, order_list: OrderList, df: pd.DataFrame, order_type: OrderType
+    ) -> pd.DataFrame:
+        new_rows = list(
+            map(
+                lambda order: [
+                    order.order_id,
+                    order.price,
+                    order.quantity,
+                    order.timestamp,
+                ],
+                order_list,
+            )
+        )
+        new_df = pd.DataFrame(new_rows, columns=df.columns)
+        updated_df = pd.concat([df, new_df], ignore_index=True)
+        updated_df = updated_df.sort_values(
+            by=["price", "timestamp"], ascending=[order_type == OrderType.SELL, True]
+        )
+        return updated_df
+
     def add_order(self, order: Order):
         if order.order_type == OrderType.BUY:
-            self.buy_orders.loc[len(self.buy_orders)] = {
-                "id": order.order_id,
-                "price": order.price,
-                "quantity": order.quantity,
-                "timestamp": order.timestamp,
-            }
-            self.buy_orders = self.buy_orders.sort_values(
-                by=["price", "timestamp"], ascending=[False, True]
-            )
+            self.quick_buy.append(order)
         else:
-            self.sell_orders.loc[len(self.sell_orders)] = {
-                "id": order.order_id,
-                "price": order.price,
-                "quantity": order.quantity,
-                "timestamp": order.timestamp,
-            }
-            self.sell_orders = self.sell_orders.sort_values(
-                by=["price", "timestamp"], ascending=[True, True]
-            )
+            self.quick_sell.append(order)
+
+        self.check_clear_cache()
+        return
 
     def match_orders(self):
         # It is assumed that the order books remain in sorted condition
